@@ -1,0 +1,122 @@
+{% extends 'cashier_panel/base.html' %}
+
+{% block title %}Панель кассира{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Панель кассира</h1>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-8">
+                    <input type="text" name="q" class="form-control" 
+                           placeholder="Введите название фильма для поиска заказов..." 
+                           value="{{ query }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Найти</button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{% url 'cashier_panel:cashier_dashboard' %}" class="btn btn-outline-secondary w-100">Сбросить</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <h5 class="card-title">Всего заказов</h5>
+                        <h2 class="card-text">{{ total_orders }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h5 class="card-title">Заказов сегодня</h5>
+                        <h2 class="card-text">{{ today_orders }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-list"></i> Последние заказы</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_orders %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Номер билета</th>
+                                <th>Фильм</th>
+                                <th>Имя</th>
+                                <th>Дата и время</th>
+                                <th>Зал</th>
+                                <th>Место</th>
+                                <th>Цена</th>
+                                <th>Статус</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in recent_orders %}
+                            <tr>
+                                <td><strong>{{ order.slug }}</strong></td>
+                                <td>{{ order.title }}</td>
+                                <td>{{ order.name }}</td>
+                                <td>{{ order.time }}</td>
+                                <td>{{ order.hall }}</td>
+                                <td>Ряд {{ order.row }}, Место {{ order.place }}</td>
+                                <td>{{ order.price }} руб.</td>
+                                <td>
+                                    {% if order.status == 'confirmed' %}
+                                        <span class="badge bg-success">Подтвержден</span>
+                                    {% elif order.status == 'cancelled' %}
+                                        <span class="badge bg-danger">Отменен</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Ожидает</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        {% if order.status != 'confirmed' %}
+                                        <form method="post" action="{% url 'cashier_panel:confirm_order' order.slug %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-success btn-sm" 
+                                                    title="Подтвердить заказ {{ order.slug }}">
+                                                <span class="d-none d-md-inline">✅</span>
+                                            </button>
+                                        </form>
+                                        {% endif %}
+
+                                        {% if order.status != 'cancelled' %}
+                                        <form method="post" action="{% url 'cashier_panel:cancel_order' order.slug %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" 
+                                                    title="Отменить заказ {{ order.slug }}">
+                                                <span class="d-none d-md-inline">❌</span>
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">Заказов пока нет</p>
+                {% endif %}
+            </div>
+        </div>
+</div>
+{% endblock %}

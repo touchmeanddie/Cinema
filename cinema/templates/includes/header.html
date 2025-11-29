@@ -1,0 +1,29 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'films:film_list' %}">📽 КИНОТЕАТР</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'schedule' %}active active-nav-item{% endif %}" 
+                       href="{% url 'films:schedule' %}">Расписание</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'film_list' %}active active-nav-item{% endif %}" 
+                       href="{% url 'films:film_list' %}">Афиша</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link {% if request.resolver_match.url_name == 'contacts' %}active active-nav-item{% endif %}" 
+                           href="{% url 'films:contacts' %}">О кинотеатре</a>
+                </li>
+            </ul>
+            <form class="d-flex" method="get" action="{% url 'films:film_list' %}">
+                <input class="form-control me-2" type="search" name="q" placeholder="Поиск по названию..." 
+                       aria-label="Search" value="{{ request.GET.q }}">
+                <button class="btn btn-outline-light" type="submit">Найти</button>
+            </form>
+        </div>
+    </div>
+</nav>

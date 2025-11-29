@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Сейчас в прокате{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h2">
+                {% if request.GET.q %}
+                    Результаты поиска: "{{ request.GET.q }}"
+                {% else %}
+                    Сейчас в прокате
+                {% endif %}
+            </h1>
+            {% if request.GET.q %}
+                <p class="text-muted">Найдено фильмов: {{ films.count }}</p>
+                <a href="{% url 'films:film_list' %}" class="btn btn-outline-secondary btn-sm">Показать все фильмы</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            {% if films %}
+                {% for film in films %}
+                <div class="card mb-3 border-0 shadow-sm">
+                    <div class="row g-0">
+                        <div class="col-md-2 position-relative">
+                            {% if film.poster %}
+                                <img src="{{ film.poster.url }}" class="img-fluid rounded-start h-100 w-100" style="object-fit: cover;" alt="{{ film.title }}">
+                            {% else %}
+                                <img src="{% static 'images/poster_none.png' %}" class="img-fluid rounded-start h-100 w-100" style="object-fit: cover;" alt="{{ film.title }}">
+                            {% endif %}
+                            <span class="badge bg-secondary position-absolute top-0 end-0 m-2">{{ film.get_age_limit_display }}</span>
+                        </div>
+                        
+                        <div class="col-md-10">
+                            <div class="card-body h-100">
+                                <div class="row h-100">
+                                    <div class="col-md-8">
+                                        <h5 class="card-title mb-2">{{ film.title }}</h5>
+                                        <p class="card-text text-muted mb-2 text-truncate">
+                                            {{ film.description }}
+                                        </p>
+                                        <div class="film-meta">
+                                            <small class="text-muted">
+                                                <strong>Страна:</strong> {{ film.country }} | 
+                                                <strong>Длительность:</strong> {{ film.time|time:"H:i" }} | 
+                                                <strong>Показ с:</strong> {{ film.beginning|date:"d.m.Y" }} | 
+                                                <strong>Возраст:</strong> {{ film.get_age_limit_display }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 d-flex flex-column justify-content-between">
+                                        <div class="d-grid gap-2">
+                                            <a href="{% url 'films:film_detail' film.slug %}" class="btn btn-primary">Подробнее</a>
+                                            <a href="{% url 'films:schedule' %}" class="btn btn-outline-success">Купить билет</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-5">
+                    <h3 class="text-muted">
+                        {% if request.GET.q %}
+                            По запросу "{{ request.GET.q }}" ничего не найдено
+                        {% else %}
+                            Сеансов пока что нет
+                        {% endif %}
+                    </h3>
+                    <p class="text-muted mb-4">
+                        {% if request.GET.q %}
+                            Попробуйте изменить поисковый запрос
+                        {% else %}
+                            Скоро мы добавим новые фильмы. Следите за обновлениями!
+                        {% endif %}
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

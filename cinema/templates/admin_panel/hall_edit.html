@@ -1,0 +1,60 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}Редактировать зал{% endblock %}
+{% block page_title %}Редактировать зал{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow">
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Название зала</label>
+                        {{ form.name }}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Номер зала</label>
+                                {{ form.number }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Цена билета</label>
+                                <div class="input-group">
+                                    {{ form.price }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Количество рядов</label>
+                                {{ form.count_rows }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Количество мест в ряду</label>
+                                {{ form.count_places }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4 pt-3">
+                        <a href="{% url 'admin_panel:hall_list' %}" class="btn btn-outline-secondary">Назад к списку</a>
+                        <button type="submit" class="btn btn-primary px-4">Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Подтверждение бронирования{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Подтверждение бронирования</h4>
+                </div>
+                <div class="card-body">
+                    <div class="booking-info mb-4">
+                        <h5>{{ session.film.title }}</h5>
+                        <p class="mb-1"><strong>Дата и время:</strong> {{ session.date }} {{ session.start_time }}</p>
+                        <p class="mb-1"><strong>Зал:</strong> {{ session.hall.name }}</p>
+                        <p class="mb-1"><strong>Место:</strong> Ряд {{ row }}, Место {{ place }}</p>
+                        <p class="mb-0"><strong>Цена:</strong> {{ session.hall.price }} руб.</p>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Подтвердить бронирование</button>
+                            <a href="{% url 'cashier_panel:seat_selection' session.id %}" class="btn btn-secondary">Вернуться к выбору мест</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}Создать новый зал{% endblock %}
+{% block page_title %}Создать новый зал{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow">
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Название зала</label>
+                        <input type="text" name="name" class="form-control" required id="id_name">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Номер зала</label>
+                                <input type="number" name="number" class="form-control" required id="id_number">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Цена билета</label>
+                                <div class="input-group">
+                                    <input type="number" name="price" value="500" class="form-control" required id="id_price">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Количество рядов</label>
+                                <input type="number" name="count_rows" value="10" class="form-control" required id="id_count_rows">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Количество мест в ряду</label>
+                                <input type="number" name="count_places" value="10" class="form-control" required id="id_count_places">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4 pt-3">
+                        <a href="{% url 'admin_panel:hall_list' %}" class="btn btn-outline-secondary">Назад к списку</a>
+                        <button type="submit" class="btn btn-primary px-4">Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ film.title }}{% endblock %}
+{% block content %}
+<style>
+.film-poster {
+    width: 400px;
+    height: 550px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+</style>
+<br>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card film-info-card">
+                <div class="card-body text-center">
+                    {% if film.poster %}
+                        <img src="{{ film.poster.url }}" alt="{{ film.title }}" class="film-poster img-fluid mb-3">
+                    {% else %}
+                        <img src="{% static 'images/poster_none.png' %}" alt="{{ film.title }}" class="film-poster img-fluid mb-3">
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'films:schedule' %}" class="btn btn-primary btn-lg">Купить билет</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card film-info-card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="h3 mb-0">{{ film.title }}</h1>
+                        <span class="badge bg-secondary age-badge">{{ film.get_age_limit_display }}</span>
+                    </div>
+                </div>
+                <div class="card-body">
+
+                    <div class="mb-4">
+                        <h5 class="text-muted">Описание</h5>
+                        <p class="lead">{{ film.description|linebreaks }}</p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">Страна</h6>
+                                    <p class="card-text h5 text-primary">{{ film.country }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">Возрастное ограничение</h6>
+                                    <p class="card-text h5 text-primary">{{ film.get_age_limit_display }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">Длительность</h6>
+                                    <p class="card-text h5 text-primary">{{ film.time|time:"H:i" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Расписание{% endblock %}
+{% block content %}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Расписание сеансов</h1>
+    <br>
+
+    <div class="bg-light rounded-3 p-3 mb-4">
+        <div class="d-flex overflow-auto">
+            {% for date_info in dates %}
+            <a href="#date-{{ forloop.counter0 }}" class="text-decoration-none text-dark text-center p-3 rounded-3 mx-1 {% if date_info.date == today %}bg-primary text-white{% else %}hover-bg{% endif %}" style="min-width: 80px;">
+                <div class="fw-bold">{{ date_info.date|date:'d' }}</div>
+                <div class="small">{{ date_info.date|date:'E' }}</div>
+                <div class="small">{{ date_info.date|date:'l' }}</div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    <br>
+    <br>
+    <br>
+
+    {% for date_info in dates %}
+    <div id="date-{{ forloop.counter0 }}">
+        <h3 class="mb-3">
+            {{ date_info.date|date:'d E Y' }}, {{ date_info.date|date:'l' }}
+            {% if date_info.date == today %}
+            <span class="badge bg-primary">Сегодня</span>
+            {% elif date_info.date == today|add:1 %}
+            <span class="badge bg-success">Завтра</span>
+            {% endif %}
+        </h3>
+        
+        {% if date_info.sessions %}
+            {% regroup date_info.sessions by film as film_sessions %}
+            
+            {% for film_group in film_sessions %}
+            <div class="border rounded-3 p-3 mb-3">
+                <div class="row align-items-center">
+                    <div class="col-md-2">
+                        {% if film_group.grouper.poster %}
+                        <img src="{{ film_group.grouper.poster.url }}" alt="{{ film_group.grouper.title }}" 
+                             class="img-fluid rounded-3 w-100" style="height: 180px; object-fit: contain;">
+                        {% else %}
+                        <img src="{% static 'images/poster_none.png' %}" alt="{{ film_group.grouper.title }}" 
+                             class="img-fluid rounded-3 w-100" style="height: 180px; object-fit: contain;">
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="mb-1">{{ film_group.grouper.title }}</h5>
+                        <p class="text-muted mb-1">
+                            {{ film_group.grouper.get_age_limit_display }} • 
+                            {{ film_group.grouper.time|time:"H:i" }} • 
+                            {{ film_group.grouper.genre }}
+                        </p>
+                        <p class="small text-muted mb-0">{{ film_group.grouper.description|truncatewords:20 }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-muted mb-2">
+                            <strong>Доступные сеансы:</strong>
+                        </div>
+                        <div>
+                            {% for session in film_group.list %}
+                            <a href="{% url 'cashier_panel:seat_selection' session.id %}" class="btn btn-primary btn-sm rounded-pill m-1 text-decoration-none">
+                                {{ session.start_time|time:"H:i" }}<br>
+                                <small>{{ session.hall.name }}</small>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-5">
+                <h4 class="text-muted mt-3">На эту дату сеансов нет</h4>
+                <p class="text-muted">Выберите другую дату для просмотра расписания</p>
+            </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

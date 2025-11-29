@@ -1,0 +1,136 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}Сеансы - Админ-панель{% endblock %}
+{% block page_title %}Управление сеансами{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Добавить сеанс</h5>
+            </div>
+            <div class="card-body">
+                <div class="card mb-3">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">Выбор параметров</h6>
+                    </div>
+                    <div class="card-body">
+                        <form method="get">
+                            <div class="mb-3">
+                                <label class="form-label">Фильм</label>
+                                <select name="film_id" class="form-select" required>
+                                    <option value="">Выберите фильм...</option>
+                                    {% for film in films %}
+                                    <option value="{{ film.id }}" 
+                                            {% if selected_film and selected_film.id == film.id %}selected{% endif %}>
+                                        {{ film.title }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Зал</label>
+                                <select name="hall_id" class="form-select" required>
+                                    <option value="">Выберите зал...</option>
+                                    {% for hall in halls %}
+                                    <option value="{{ hall.id }}"
+                                            {% if selected_hall and selected_hall.id == hall.id %}selected{% endif %}>
+                                        {{ hall.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Дата</label>
+                                <input type="date" name="date" class="form-control" required
+                                       value="{{ selected_date|date:'Y-m-d' }}"
+                                       min="{{ today|date:'Y-m-d' }}">
+                            </div>
+
+                            <button type="submit" class="btn btn-outline-primary w-100">
+                                Показать доступное время
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                {% if selected_film and selected_hall and selected_date %}
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <input type="hidden" name="film" value="{{ selected_film.id }}">
+                        <input type="hidden" name="hall" value="{{ selected_hall.id }}">
+                        <input type="hidden" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+                    
+                        <div class="mb-3">
+                            <label class="form-label">Время начала</label>
+                            <select name="start_time" class="form-select" required>
+                                <option value="">Выберите время...</option>
+                                {% for time_slot in available_times %}
+                                <option value="{{ time_slot }}">{{ time_slot }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if not available_times %}
+                            <div class="text-danger small mt-1">Нет доступного времени</div>
+                            {% endif %}
+                        </div>
+                    
+                        <button type="submit" class="btn btn-primary w-100" 
+                                {% if not available_times %}disabled{% endif %}>
+                            Создать сеанс
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Ближайшие сеансы</h5>
+            </div>
+            <div class="card-body">
+                {% if sessions %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Фильм</th>
+                                <th>Зал</th>
+                                <th>Дата</th>
+                                <th>Время</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for session in sessions %}
+                            <tr>
+                                <td>{{ session.film.title }}</td>
+                                <td>{{ session.hall.name }}</td>
+                                <td>{{ session.date|date:"d.m.Y" }}</td>
+                                <td>{{ session.start_time|time:"H:i" }}</td>
+                                <td>
+                                    <a href="{% url 'admin_panel:session_delete' session.id %}" 
+                                       class="btn btn-outline-danger btn-sm">
+                                        Удалить
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted">Сеансы не найдены</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

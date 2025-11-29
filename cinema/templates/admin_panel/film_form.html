@@ -1,0 +1,105 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}Создать фильм{% endblock %}
+
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header">
+                <h4 class="mb-0">Создать фильм</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Название фильма *</label>
+                                <input type="text" name="title" class="form-control" 
+                                       value="{{ form.title.value|default:'' }}" required
+                                       placeholder="Введите название фильма">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Страна *</label>
+                                <input type="text" name="country" class="form-control" 
+                                       value="{{ form.country.value|default:'' }}" required
+                                       placeholder="Введите страну производства">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Длительность *</label>
+                                <input type="time" name="time" class="form-control" 
+                                       value="{{ form.time.value|default:''|time:'H:i' }}" required
+                                       step="60">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Возрастное ограничение *</label>
+                                <select name="age_limit" class="form-control" required>
+                                    <option value="">Выберите возраст</option>
+                                    <option value="0" {% if form.age_limit.value == "0" %}selected{% endif %}>0+</option>
+                                    <option value="6" {% if form.age_limit.value == "6" %}selected{% endif %}>6+</option>
+                                    <option value="12" {% if form.age_limit.value == "12" %}selected{% endif %}>12+</option>
+                                    <option value="16" {% if form.age_limit.value == "16" %}selected{% endif %}>16+</option>
+                                    <option value="18" {% if form.age_limit.value == "18" %}selected{% endif %}>18+</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Афиша</label>
+                                <input type="file" name="poster" class="form-control" 
+                                       accept="image/*">
+                                {% if form.instance.poster %}
+                                <div class="mt-2">
+                                    <img src="{{ form.instance.poster.url }}" alt="Постер" 
+                                         class="img-thumbnail mt-1" style="max-height: 100px;">
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Начало показа *</label>
+                                <input type="date" name="beginning" class="form-control" 
+                                       value="{{ form.beginning.value|default:''|date:'Y-m-d' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Конец показа *</label>
+                                <input type="date" name="ending" class="form-control" 
+                                       value="{{ form.ending.value|default:''|date:'Y-m-d' }}" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Описание *</label>
+                        <textarea name="description" class="form-control" rows="5" 
+                                  placeholder="Введите описание фильма" required>{{ form.description.value|default:'' }}</textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'admin_panel:film_list' %}" class="btn btn-secondary">Назад к списку</a>
+                        <button type="submit" class="btn btn-primary">Создать</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
