@@ -2,13 +2,76 @@ from .models import Booking, Order
 from admin_panel.models import Session
 from .forms import BookingForm
 from django.views import View
-from datetime import datetime
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 from django.utils.decorators import method_decorator
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+from datetime import datetime
 
 
-class SessionSeatSelectionView(View):
+class CashierRequiredMixin(LoginRequiredMixin):
+    login_url = 'cashier_panel:login'
+
+
+class CashierRedirectView(View):
+    def get(self, request):
+        if request.user.is_authenticated:
+            return redirect('cashier_panel:cashier_dashboard')
+        return redirect('cashier_panel:login')
+
+
+class CashierLoginView(View):
+    def get(self, request):
+        if request.user.is_authenticated:
+            return redirect('cashier_panel:cashier_dashboard')
+        return render(request, 'cashier_panel/login.html')
+
+    def post(self, request):
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect('cashier_panel:cashier_dashboard')
+        else:
+            messages.error(request, 'Неверный логин или пароль')
+            return render(request, 'cashier_panel/login.html')
+
+
+class CashierLogoutView(View):
+    def get(self, request):
+        logout(request)
+        return redirect('cashier_panel:login')
+
+
+class CashierDashboardView(CashierRequiredMixin, View):
+    def get(self, request):
+        query = request.GET.get('q', '')
+
+        if query:
+            orders = Order.objects.filter(title__iregex=query)
+        else:
+            orders = Order.objects.all().order_by('-created_at')[:10]
+
+        total_orders = Order.objects.count()
+        today_orders = Order.objects.filter(
+            created_at__date=datetime.now().date()
+        ).count()
+
+        context = {
+            'recent_orders': orders,
+            'total_orders': total_orders,
+            'today_orders': today_orders,
+            'query': query,
+        }
+        return render(request, 'cashier_panel/cashier_dashboard.html', context)
+
+
+class SessionSeatSelectionView(CashierRequiredMixin, View):
     def get(self, request, session_id):
         session = get_object_or_404(Session, id=session_id)
         hall = session.hall
@@ -26,9 +89,7 @@ class SessionSeatSelectionView(View):
         })
 
     def create_bookings(self, session, hall):
-        hall.count_places = hall.count_places
         total_seats = hall.count_rows * hall.count_places
-
         existing_count = Booking.objects.filter(session_id=session.id).count()
 
         if existing_count != total_seats:
@@ -51,7 +112,7 @@ class SessionSeatSelectionView(View):
         }
 
 
-class BookingCreateView(View):
+class BookingCreateView(CashierRequiredMixin, View):
     def get(self, request, session_id, row, place):
         session = get_object_or_404(Session, id=session_id)
 
@@ -110,42 +171,16 @@ class BookingCreateView(View):
         return render(request, 'cashier_panel/booking_form.html', context)
 
 
-class BookingSuccessView(View):
+class BookingSuccessView(CashierRequiredMixin, View):
     def get(self, request, order_slug):
         order = get_object_or_404(Order, slug=order_slug)
         return render(request, 'cashier_panel/booking_success.html',
                       {'order': order})
 
 
-class CashierDashboardView(View):
-    def get(self, request):
-        query = request.GET.get('q', '')
-
-        if query:
-            orders = Order.objects.filter(title__iregex=query)
-            search_mode = True
-        else:
-            orders = Order.objects.all().order_by('-created_at')[:10]
-            search_mode = False
-
-        total_orders = Order.objects.count()
-        today_orders = Order.objects.filter(
-            created_at__date=datetime.now().date()
-        ).count()
-
-        context = {
-            'recent_orders': orders,
-            'total_orders': total_orders,
-            'today_orders': today_orders,
-            'query': query,
-            'search_mode': search_mode,
-        }
-        return render(request, 'cashier_panel/cashier_dashboard.html', context)
-
-
-class ConfirmOrderView(View):
+class ConfirmOrderView(CashierRequiredMixin, View):
     @method_decorator(require_POST)
-    def post(self, order_slug):
+    def post(self, request, order_slug):
         order = get_object_or_404(Order, slug=order_slug)
 
         if order.status != 'confirmed':
@@ -155,9 +190,9 @@ class ConfirmOrderView(View):
         return redirect('cashier_panel:cashier_dashboard')
 
 
-class CancelOrderView(View):
+class CancelOrderView(CashierRequiredMixin, View):
     @method_decorator(require_POST)
-    def post(self, order_slug):
+    def post(self, request, order_slug):
         order = get_object_or_404(Order, slug=order_slug)
 
         if order.status != 'cancelled':

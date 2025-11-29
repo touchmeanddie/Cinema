@@ -4,6 +4,8 @@ from . import views
 app_name = 'cashier_panel'
 
 urlpatterns = [
+    path('login/', views.CashierLoginView.as_view(), name='login'),
+    path('logout/', views.CashierLogoutView.as_view(), name='logout'),
     path('', views.CashierDashboardView.as_view(), name='cashier_dashboard'),
     path('session/<int:session_id>/seats/',
          views.SessionSeatSelectionView.as_view(), name='seat_selection'),
