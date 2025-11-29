@@ -46,7 +46,7 @@ class Booking(models.Model):
     place = models.IntegerField('Место')
     is_booked = models.BooleanField('Забронировано', default=False)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True,
-                              blank=True, related_name='заказ')
+                              blank=True, related_name='bookings')
 
     class Meta:
         verbose_name = 'бронь'
