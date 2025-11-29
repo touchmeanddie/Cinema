@@ -100,7 +100,8 @@ class SessionSeatSelectionView(CashierRequiredMixin, View):
         if existing_count != total_seats:
             Booking.objects.filter(session_id=session.id).delete()
             bookings_to_create = [
-                Booking(session_id=session.id, row=row, place=seat, is_booked=False)
+                Booking(session_id=session.id, row=row, place=seat,
+                        is_booked=False)
                 for row in range(1, hall.count_rows + 1)
                 for seat in range(1, hall.count_places + 1)
             ]
